@@ -1,0 +1,6 @@
+# Sensitive files
+*.json
+venv/
+__pycache__/
+*.pyc
+.env 
