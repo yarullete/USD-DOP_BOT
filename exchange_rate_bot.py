@@ -21,7 +21,7 @@ SPANISH_MONTHS = [
     "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
 ]
 
-GSHEET_CREDENTIALS = "usd-dop-bot-1d6231b8312c.json"
+GSHEET_CREDENTIALS = "usd-dop-bot-credentials.json"
 GSHEET_NAME = "Tasas USD-DOP Newsletter (Responses)(Mail)"
 GSHEET_TAB = "Form Responses 1"
 GSHEET_EMAIL_COLUMN = 2  # Column B (1-indexed)
