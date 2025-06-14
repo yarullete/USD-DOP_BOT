@@ -14,8 +14,9 @@ BANKS = {
     "Banco BHD León": "https://www.infodolar.com.do/precio-dolar-entidad-banco-bhd.aspx",
 }
 
-YAHOO_EMAIL = os.environ.get("YAHOO_EMAIL")
-YAHOO_APP_PASSWORD = os.environ.get("YAHOO_APP_PASSWORD")
+EMAIL_CREDENTIALS = os.environ.get("EMAIL_CREDENTIALS", "").split(":")
+YAHOO_EMAIL = EMAIL_CREDENTIALS[0] if len(EMAIL_CREDENTIALS) > 0 else ""
+YAHOO_APP_PASSWORD = EMAIL_CREDENTIALS[1] if len(EMAIL_CREDENTIALS) > 1 else ""
 
 SPANISH_MONTHS = [
     "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
