@@ -1,7 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import smtplib
-from email.mime.text import MIMEText
 import os
 from datetime import datetime
 import gspread
@@ -14,9 +12,9 @@ BANKS = {
     "Banco BHD León": "https://www.infodolar.com.do/precio-dolar-entidad-banco-bhd.aspx",
 }
 
-EMAIL_CREDENTIALS = os.environ.get("EMAIL_CREDENTIALS", "").split(":")
-YAHOO_EMAIL = EMAIL_CREDENTIALS[0] if len(EMAIL_CREDENTIALS) > 0 else ""
-YAHOO_APP_PASSWORD = EMAIL_CREDENTIALS[1] if len(EMAIL_CREDENTIALS) > 1 else ""
+MAILJET_API_KEY = os.environ.get("MAILJET_API_KEY")
+MAILJET_SECRET_KEY = os.environ.get("MAILJET_SECRET_KEY")
+SENDER_EMAIL = "isaiasyarull@yahoo.com"  # Your verified sender email in Mailjet
 
 SPANISH_MONTHS = [
     "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
@@ -101,51 +99,47 @@ def build_html_email(rates):
     '''
     return html
 
-def send_email(subject, html_body, sender, password, recipients):
-    """Send the HTML email to all recipients."""
+def send_email(subject, html_body, recipients):
+    """Send the HTML email using Mailjet."""
     print("\n=== EMAIL DETAILS ===")
-    print(f"From: {sender}")
+    print(f"From: {SENDER_EMAIL}")
     print(f"To: {recipients}")
     print(f"Subject: {subject}")
     print("HTML Content Preview:")
     print(html_body[:500] + "..." if len(html_body) > 500 else html_body)
     print("===================\n")
     
-    msg = MIMEText(html_body, 'html')
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = ', '.join(recipients)
+    url = "https://api.mailjet.com/v3.1/send"
+    data = {
+        "Messages": [
+            {
+                "From": {
+                    "Email": SENDER_EMAIL,
+                    "Name": "USD DOP Bot"
+                },
+                "To": [{"Email": recipient} for recipient in recipients],
+                "Subject": subject,
+                "HTMLPart": html_body
+            }
+        ]
+    }
     
     try:
-        print("Connecting to Yahoo SMTP server...")
-        # Try port 587 first
-        try:
-            with smtplib.SMTP('smtp.mail.yahoo.com', 587) as server:
-                print("Starting TLS...")
-                server.starttls()
-                print("Attempting to login...")
-                server.login(sender, password)
-                print("Login successful, sending email...")
-                server.sendmail(sender, recipients, msg.as_string())
-                print(f"Email sent successfully to {len(recipients)} recipients!")
-        except Exception as e1:
-            print(f"Failed with port 587: {str(e1)}")
-            print("Trying port 465 with SSL...")
-            # If port 587 fails, try port 465 with SSL
-            with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as server:
-                print("Attempting to login...")
-                server.login(sender, password)
-                print("Login successful, sending email...")
-                server.sendmail(sender, recipients, msg.as_string())
-                print(f"Email sent successfully to {len(recipients)} recipients!")
+        response = requests.post(
+            url,
+            json=data,
+            auth=(MAILJET_API_KEY, MAILJET_SECRET_KEY)
+        )
+        response.raise_for_status()
+        print(f"Email sent successfully to {len(recipients)} recipients!")
+        print(f"Mailjet Response: {response.json()}")
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         print(f"Error type: {type(e)}")
         import traceback
         print(f"Full traceback: {traceback.format_exc()}")
-        # Print the first few characters of the password (for debugging)
-        if password:
-            print(f"Password starts with: {password[:4]}...")
+        if response:
+            print(f"Mailjet Response: {response.text}")
 
 # --- MAIN WORKFLOW ---
 def main():
@@ -177,12 +171,9 @@ def main():
     print(f"Found {len(recipients)} recipients: {recipients}")
     
     if recipients:
-        print(f"Attempting to send email using: {YAHOO_EMAIL}")
         send_email(
             subject="Tasas USD/DOP hoy",
             html_body=html_body,
-            sender=YAHOO_EMAIL,
-            password=YAHOO_APP_PASSWORD,
             recipients=recipients
         )
     else:
