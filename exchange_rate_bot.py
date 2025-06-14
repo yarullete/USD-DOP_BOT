@@ -103,10 +103,13 @@ def build_html_email(rates):
 
 def send_email(subject, html_body, sender, password, recipients):
     """Send the HTML email to all recipients."""
-    print(f"Preparing to send email to {len(recipients)} recipients...")
-    print(f"Sender: {sender}")
-    print(f"Password length: {len(password)}")
-    print(f"Recipients: {recipients}")
+    print("\n=== EMAIL DETAILS ===")
+    print(f"From: {sender}")
+    print(f"To: {recipients}")
+    print(f"Subject: {subject}")
+    print("HTML Content Preview:")
+    print(html_body[:500] + "..." if len(html_body) > 500 else html_body)
+    print("===================\n")
     
     msg = MIMEText(html_body, 'html')
     msg['Subject'] = subject
@@ -135,12 +138,6 @@ def send_email(subject, html_body, sender, password, recipients):
                 print("Login successful, sending email...")
                 server.sendmail(sender, recipients, msg.as_string())
                 print(f"Email sent successfully to {len(recipients)} recipients!")
-        
-        print("Email content preview:")
-        print(f"Subject: {subject}")
-        print(f"From: {sender}")
-        print(f"To: {', '.join(recipients)}")
-        print("HTML content length:", len(html_body))
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         print(f"Error type: {type(e)}")
