@@ -114,20 +114,33 @@ def send_email(subject, html_body, sender, password, recipients):
     msg['To'] = ', '.join(recipients)
     
     try:
-        print("Connecting to SMTP server...")
-        with smtplib.SMTP('smtp.mail.yahoo.com', 587) as server:
-            print("Starting TLS...")
-            server.starttls()
-            print("Attempting to login...")
-            server.login(sender, password)
-            print("Login successful, sending email...")
-            server.sendmail(sender, recipients, msg.as_string())
-            print(f"Email sent successfully to {len(recipients)} recipients!")
-            print("Email content preview:")
-            print(f"Subject: {subject}")
-            print(f"From: {sender}")
-            print(f"To: {', '.join(recipients)}")
-            print("HTML content length:", len(html_body))
+        print("Connecting to Yahoo SMTP server...")
+        # Try port 587 first
+        try:
+            with smtplib.SMTP('smtp.mail.yahoo.com', 587) as server:
+                print("Starting TLS...")
+                server.starttls()
+                print("Attempting to login...")
+                server.login(sender, password)
+                print("Login successful, sending email...")
+                server.sendmail(sender, recipients, msg.as_string())
+                print(f"Email sent successfully to {len(recipients)} recipients!")
+        except Exception as e1:
+            print(f"Failed with port 587: {str(e1)}")
+            print("Trying port 465 with SSL...")
+            # If port 587 fails, try port 465 with SSL
+            with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as server:
+                print("Attempting to login...")
+                server.login(sender, password)
+                print("Login successful, sending email...")
+                server.sendmail(sender, recipients, msg.as_string())
+                print(f"Email sent successfully to {len(recipients)} recipients!")
+        
+        print("Email content preview:")
+        print(f"Subject: {subject}")
+        print(f"From: {sender}")
+        print(f"To: {', '.join(recipients)}")
+        print("HTML content length:", len(html_body))
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         print(f"Error type: {type(e)}")
