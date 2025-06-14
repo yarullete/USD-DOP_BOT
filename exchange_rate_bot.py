@@ -104,10 +104,15 @@ def build_html_email(rates):
 def send_email(subject, html_body, sender, password, recipients):
     """Send the HTML email to all recipients."""
     print(f"Preparing to send email to {len(recipients)} recipients...")
+    print(f"Sender: {sender}")
+    print(f"Password length: {len(password)}")
+    print(f"Recipients: {recipients}")
+    
     msg = MIMEText(html_body, 'html')
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = ', '.join(recipients)
+    
     try:
         print("Connecting to SMTP server...")
         with smtplib.SMTP('smtp.mail.yahoo.com', 587) as server:
@@ -118,11 +123,19 @@ def send_email(subject, html_body, sender, password, recipients):
             print("Login successful, sending email...")
             server.sendmail(sender, recipients, msg.as_string())
             print(f"Email sent successfully to {len(recipients)} recipients!")
+            print("Email content preview:")
+            print(f"Subject: {subject}")
+            print(f"From: {sender}")
+            print(f"To: {', '.join(recipients)}")
+            print("HTML content length:", len(html_body))
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         print(f"Error type: {type(e)}")
         import traceback
         print(f"Full traceback: {traceback.format_exc()}")
+        # Print the first few characters of the password (for debugging)
+        if password:
+            print(f"Password starts with: {password[:4]}...")
 
 # --- MAIN WORKFLOW ---
 def main():
