@@ -19,7 +19,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 gspread oauth2client
       - name: Write GCP credentials to file
-        run: echo "${{ secrets.GCP_CREDENTIALS }}" > usd-dop-bot-credentials.json
+        run: echo "${{ secrets.GCP_CREDENTIALS }}" | base64 -d > usd-dop-bot-credentials.json
       - name: Run bot
         env:
           YAHOO_EMAIL: ${{ secrets.YAHOO_EMAIL }}
