@@ -22,5 +22,5 @@ jobs:
         run: echo "${{ secrets.GCP_CREDENTIALS }}" | base64 -d > usd-dop-bot-credentials.json
       - name: Run bot
         env:
-          EMAIL_CREDENTIALS: ${{ secrets.EMAIL_CREDENTIALS }}
+          EMAIL_CREDENTIALS: ${{ secrets.YAHOO_EMAIL }}
         run: python exchange_rate_bot.py 
