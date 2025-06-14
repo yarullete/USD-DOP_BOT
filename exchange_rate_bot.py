@@ -110,7 +110,9 @@ def send_email(subject, html_body, sender, password, recipients):
     msg['To'] = ', '.join(recipients)
     try:
         print("Connecting to SMTP server...")
-        with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as server:
+        with smtplib.SMTP('smtp.mail.yahoo.com', 587) as server:
+            print("Starting TLS...")
+            server.starttls()
             print("Attempting to login...")
             server.login(sender, password)
             print("Login successful, sending email...")
