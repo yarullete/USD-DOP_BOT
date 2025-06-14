@@ -103,36 +103,56 @@ def build_html_email(rates):
 
 def send_email(subject, html_body, sender, password, recipients):
     """Send the HTML email to all recipients."""
+    print(f"Preparing to send email to {len(recipients)} recipients...")
     msg = MIMEText(html_body, 'html')
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = ', '.join(recipients)
     try:
+        print("Connecting to SMTP server...")
         with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as server:
+            print("Attempting to login...")
             server.login(sender, password)
+            print("Login successful, sending email...")
             server.sendmail(sender, recipients, msg.as_string())
-        print(f"Email sent successfully to {len(recipients)} recipients!")
+            print(f"Email sent successfully to {len(recipients)} recipients!")
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"Error sending email: {str(e)}")
+        print(f"Error type: {type(e)}")
+        import traceback
+        print(f"Full traceback: {traceback.format_exc()}")
 
 # --- MAIN WORKFLOW ---
 def main():
+    print("Starting bot...")
     # Scrape rates from all banks
     rates = []
     for bank, url in BANKS.items():
+        print(f"Scraping rates for {bank}...")
         compra, venta = get_rates(url)
         if compra and venta:
             rates.append((bank, compra, venta))
+            print(f"Got rates for {bank}: Compra={compra}, Venta={venta}")
         else:
             rates.append((bank, "No disponible", "No disponible"))
+            print(f"Could not get rates for {bank}")
+    
     # Build HTML email
+    print("Building HTML email...")
     html_body = build_html_email(rates)
+    
     # Save preview for manual checking
+    print("Saving preview...")
     with open("preview.html", "w", encoding="utf-8") as f:
         f.write(html_body)
+    
     # Get recipients from Google Sheet
+    print("Getting recipients from Google Sheet...")
     recipients = get_recipients_from_gsheet()
+    print(f"Found {len(recipients)} recipients: {recipients}")
+    
     if recipients:
+        print(f"Attempting to send email using: {YAHOO_EMAIL}")
         send_email(
             subject="Tasas USD/DOP hoy",
             html_body=html_body,
