@@ -14,7 +14,7 @@ BANKS = {
 
 MAILJET_API_KEY = os.environ.get("MAILJET_API_KEY")
 MAILJET_SECRET_KEY = os.environ.get("MAILJET_SECRET_KEY")
-SENDER_EMAIL = "isaiasyarull@yahoo.com"  # Your verified sender email in Mailjet
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL")  # Get sender email from environment variable
 
 SPANISH_MONTHS = [
     "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
